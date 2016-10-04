@@ -1,5 +1,8 @@
 language: ruby
 sudo: false
+os:
+  - linux
+  - osx
 rvm:
   - 2.3.0
 cache:
@@ -7,9 +10,9 @@ cache:
 env:
   matrix:
     - EMACS_VERSION=24.5
-    - EMACS_VERSION=25.1-rc2
-    - EMACS_VERSION=snapshot
-    - TEXINFO_VERSION=6.1
+#   - EMACS_VERSION=25.1-rc2
+    - EMACS_VERSION=25.1
+#    - TEXINFO_VERSION=6.1
 before_install:
   - export PATH="$HOME/bin:$PATH"
 script:

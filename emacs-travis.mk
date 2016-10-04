@@ -22,9 +22,23 @@
 TEXINFO_VERSION ?= 6.1
 EMACS_VERSION ?= 24.5
 VERBOSE ?= no
+
+# Tear the version apart
+VERSION_PARTS = $(subst -, ,$(EMACS_VERSION))
+VERSION_PART = $(word 1,$(VERSION_PARTS))
+VERSION_MAJOR =	$(firstword $(subst ., ,$(VERSION_PART)))
+PRE_RELEASE_PART = $(word 2,$(VERSION_PARTS))
+# Whether the version is a release candidate
+IS_RC = $(findstring rc,$(PRE_RELEASE_PART))
+
 # Build a minimal Emacs with no special flags, to build as fast as possible
-EMACSCONFFLAGS ?= --with-x-toolkit=no --without-x --without-all --with-xml2 \
-	CFLAGS='-O2 -march=native' CXXFLAGS='-O2 -march=native'
+EMACSCONFFLAGS ?= --with-x-toolkit=no --without-x --without-all --with-xml2 --with-toolkit-scroll-bars=yes
+
+ifneq ($(VERSION_MAJOR),24)
+	EMACSCONFFLAGS += --with-modules
+endif
+
+EMACSCONFFLAGS +=	CFLAGS='-O2 -march=native' CXXFLAGS='-O2 -march=native'
 
 ifeq ($(VERBOSE),yes)
 SILENT=
@@ -32,12 +46,11 @@ else
 SILENT=> /dev/null
 endif
 
-# Tear the version apart
-VERSION_PARTS = $(subst -, ,$(EMACS_VERSION))
-VERSION_PART = $(word 1,$(VERSION_PARTS))
-PRE_RELEASE_PART = $(word 2,$(VERSION_PARTS))
-# Whether the version is a release candidate
-IS_RC = $(findstring rc,$(PRE_RELEASE_PART))
+ifeq ($(shell uname),Darwin)
+	CASK_BIN_PATH=/usr/local/bin/cask
+else
+	CASK_BIN_PATH=$(HOME)/bin/cask
+endif
 
 # Clone Emacs from the Github mirror because it's way faster than upstream
 EMACS_GIT_URL = https://github.com/emacs-mirror/emacs.git
@@ -92,7 +105,7 @@ endif
 install_cask:
 	@echo "Install Cask"
 	@git clone --depth=1 https://github.com/cask/cask.git "$(HOME)/.cask"
-	@ln -s "$(HOME)/.cask/bin/cask" "$(HOME)/bin/cask"
+	@ln -s "$(HOME)/.cask/bin/cask" "$(CASK_BIN_PATH)"
 
 install_texinfo:
 	@echo "Install Texinfo $(TEXINFO_VERSION)"
