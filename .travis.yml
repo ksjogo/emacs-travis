@@ -1,13 +1,13 @@
 language: ruby
 sudo: false
 os:
-  - linux
+#  - linux
   - osx
 cache:
   bundler
 env:
   matrix:
-    - EMACS_VERSION=24.5
+ #   - EMACS_VERSION=24.5
 #   - EMACS_VERSION=25.1-rc2
     - EMACS_VERSION=25.1
 #    - TEXINFO_VERSION=6.1

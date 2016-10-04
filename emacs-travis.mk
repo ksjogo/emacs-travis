@@ -1,3 +1,4 @@
+# -*- mode: makefile -*-
 # Copyright (c) 2015-2016 Sebastian Wiesner <swiesner@lunaryorn.com>
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,6 +37,7 @@ EMACSCONFFLAGS ?= --with-x-toolkit=no --without-x --without-all --with-xml2 --wi
 
 ifneq ($(VERSION_MAJOR),24)
 	EMACSCONFFLAGS += --with-modules
+	EMACSCONFFLAGS += --with-gameuser=$(shell whoami)
 endif
 
 EMACSCONFFLAGS +=	CFLAGS='-O2 -march=native' CXXFLAGS='-O2 -march=native'
@@ -91,10 +93,14 @@ clone_emacs_snapshot:
 	cd /tmp/emacs && ./autogen.sh
 
 install_emacs:
-	@echo "Install Emacs $(EMACS_VERSION)"
-	@cd '/tmp/emacs' && ./configure --quiet --enable-silent-rules \
+	echo "Install Emacs $(EMACS_VERSION)"
+	cd '/tmp/emacs' && ./configure --quiet --enable-silent-rules \
 		--prefix="$(HOME)" $(EMACSCONFFLAGS) $(SILENT)
-	@make -j2 -C '/tmp/emacs' V=0 install $(SILENT)
+	mkdir -p "$(HOME)/bin/"
+	make -j2 -C '/tmp/emacs' V=0 install $(SILENT)
+	bash -c '[ `uname` == "Darwin" ] && ln -s "$(HOME)/bin/emacs" "/usr/local/bin/emacs"'
+	chmod +x "$(HOME)/bin/emacs"
+	ls $(HOME)/bin/
 
 ifeq ($(EMACS_VERSION),snapshot)
 install_emacs: clone_emacs_snapshot
@@ -118,3 +124,6 @@ install_texinfo:
 
 test:
 	bundle exec rspec --color --format doc
+
+murks:
+	echo $(EMACSCONFFLAGS)

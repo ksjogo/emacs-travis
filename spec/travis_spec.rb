@@ -25,13 +25,14 @@ require 'rspec'
 RSpec.describe 'Emacs installation' do
   VERSION = ENV['EMACS_VERSION']
   REPORTED_VERSION = ENV['REPORTED_EMACS_VERSION']
-  EMACS = Pathname.new('~').expand_path / 'bin' / 'emacs'
+  EMACS = Pathname.expand_path '~/bin/emacs'
 
   before do
     skip '$EMACS_VERSION not set' unless VERSION
   end
 
   it 'installs Emacs to $HOME/bin' do
+    puts EMACS.to_s
     expect(EMACS).to exist
     expect(EMACS).to be_executable
   end
